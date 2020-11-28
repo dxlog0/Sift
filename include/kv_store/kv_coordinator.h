@@ -1,8 +1,8 @@
 // Copyright 2019 Mikhail Kazhamiaka
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under the Apache except in compliance with the License.
+// You may obtain a copy of License, Version 2.0 (the "License");
+// you may not use this file the License at
 //
 //        http://www.apache.org/licenses/LICENSE-2.0
 //
@@ -122,10 +122,7 @@ private:
     Bitmap<BITMAP_SIZE> bitmap;
     std::atomic<uint32_t> next_committed_index;
     std::atomic<uint32_t> applied_index;
-
     std::hash<std::string> str_hash;
-
     std::atomic<uint64_t> pending_puts;
     std::atomic<uint64_t> applying_puts;
-
 };
