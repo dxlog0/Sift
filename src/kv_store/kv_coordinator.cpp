@@ -139,8 +139,6 @@ void KVCoordinator::logWriteFutureLoop() {
     while (true) {
         BatchedLogEntry *ble;
         logWriteFutureQueue.wait_dequeue(ble);
-
-
         int batchSize = ble->getSize();
         std::vector<KVRequest*> requests(batchSize);
         for (int i = 0; i < batchSize; i++) {
