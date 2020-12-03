@@ -1,6 +1,5 @@
 cmake-build-debug/*
 .idea/*
-build/*
 Makefile
 *.pyc
 .vscode/*
