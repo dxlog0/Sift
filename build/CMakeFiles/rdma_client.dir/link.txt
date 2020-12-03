@@ -1,0 +1,2 @@
+/usr/bin/ar qc librdma_client.a CMakeFiles/rdma_client.dir/src/network/rdma/remote_rdma_client.cpp.o CMakeFiles/rdma_client.dir/src/network/rdma/local_rdma_client.cpp.o CMakeFiles/rdma_client.dir/src/network/work_request.cpp.o CMakeFiles/rdma_client.dir/src/util/serializable_address_value_pair.cpp.o
+/usr/bin/ranlib librdma_client.a

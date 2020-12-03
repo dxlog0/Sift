@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblru_lib.a CMakeFiles/lru_lib.dir/util/cache/entry_lock_lru.cpp.o CMakeFiles/lru_lib.dir/util/cache/multi_lru.cpp.o CMakeFiles/lru_lib.dir/util/cache/simple_lru.cpp.o
+/usr/bin/ranlib liblru_lib.a

@@ -1,0 +1,2 @@
+/usr/bin/ar qc librpc_lib.a CMakeFiles/rpc_lib.dir/util/rpc/buffer.cpp.o CMakeFiles/rpc_lib.dir/util/rpc/connection.cpp.o CMakeFiles/rpc_lib.dir/util/rpc/kv_connection.cpp.o
+/usr/bin/ranlib librpc_lib.a
