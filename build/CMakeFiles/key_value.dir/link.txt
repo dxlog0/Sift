@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkey_value.a CMakeFiles/key_value.dir/src/kv_store/data_entry.cpp.o CMakeFiles/key_value.dir/src/kv_store/kv_coordinator.cpp.o CMakeFiles/key_value.dir/src/kv_store/kv_index_table.cpp.o CMakeFiles/key_value.dir/src/kv_store/log_entry.cpp.o
-/usr/bin/ranlib libkey_value.a
