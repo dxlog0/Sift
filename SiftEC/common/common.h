@@ -25,7 +25,7 @@
 // Size of the quorum
 #define QUORUM ((TOTAL_MEMORY_SERVERS/2) + 1)
 // File containing memory server addresses and ports
-#define CONFIG_FILE "/home/mkazhami/Sift/SiftEC/servers.config"
+#define CONFIG_FILE "/fukan/zdx/Sift/servers.config"
 
 /* VARIOUS SYSTEM FLAGS */
 
