@@ -56,6 +56,7 @@ public:
 
         int err;
         do {
+            LogInfo("try connect");
             err = connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
         } while (err < 0);
 //        if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
