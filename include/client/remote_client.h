@@ -37,10 +37,11 @@ class RemoteClient {
 
 public:
     explicit RemoteClient(std::string host, int port) {
+        LogInfo("try connect1");
         if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
             DIE("Unable to create socket");
         }
-
+        LogInfo("try connect2");
         int nodelay = 1;
         if (setsockopt(sockfd, SOL_TCP, TCP_NODELAY, (void *)&nodelay, sizeof(nodelay)) < 0 ) {
             DIE("Unable to set nodelay");
