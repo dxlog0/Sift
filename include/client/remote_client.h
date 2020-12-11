@@ -53,7 +53,7 @@ public:
         if (inet_pton(AF_INET, host.c_str(), &serv_addr.sin_addr) <=0) {
             DIE("Unable to get host address");
         }
-
+        LogInfo("try connect");
         int err;
         do {
             LogInfo("try connect");
