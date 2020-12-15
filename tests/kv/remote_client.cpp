@@ -59,11 +59,10 @@ int main(int argc, char **argv) {
     LogInfo("Running workload...");
     uint64_t completed_gets = 0;
     uint64_t completed_puts = 0;
-
+    auto t1 = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < num_ops; i++) {
         int op = getOp();
         std::string key("keykeykey" + std::to_string(dist(rng)));
-
         if (op < read_prob) {
             client.get(key);
             completed_gets++;
@@ -73,8 +72,9 @@ int main(int argc, char **argv) {
             completed_puts++;
         }
     }
-
-    LogInfo("Result: " << completed_gets << " gets, " << completed_puts << " puts");
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto timespan = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
+    LogInfo("Result: " << completed_gets << " gets, " << completed_puts << " puts, the timespan is "<<timespan.count()<<" ms");
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     return 0;
