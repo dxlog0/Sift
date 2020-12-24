@@ -93,7 +93,7 @@
 #define KV_LOG_SIZE                     (2ul << 15)
 
 // Number of entries the key value store can hold
-#define KV_SIZE                         (10000)
+#define KV_SIZE                         (1000000)
 // Number of entries the cache can hold (1/8 of the total size)
 #define KV_CACHE_SIZE                   (KV_SIZE / 2)
 // Size of index table
