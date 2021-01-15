@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(1,num_keys-1);
-
+ 
     LogInfo("Running workload...");
     uint64_t completed_gets = 0;
     uint64_t completed_puts = 0;
