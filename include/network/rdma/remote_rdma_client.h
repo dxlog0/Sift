@@ -68,7 +68,7 @@ public:
 
     // default values
     int TIMEOUT_IN_MS = 500; /* ms */
-    const int CQ_QUEUE_SIZE = 16000;
+    const int CQ_QUEUE_SIZE = 10000;
 
     static const uint64_t DATA_BUFFER_BLOCK_SIZE = RM_LOG_BLOCK_SIZE * 10; // set it to the largest block we'll need
     static const uint64_t INDEX_BUFFER_BLOCK_SIZE = 16; // for small updates (indices)
