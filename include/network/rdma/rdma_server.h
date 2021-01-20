@@ -70,7 +70,7 @@ class MemoryServer{
 private:
     // default variables
     uint32_t back_log = 1024;
-    const int QUEUE_SIZE = 10000;
+    const int QUEUE_SIZE = 5000;
 
     // server variables
     Server *log_server;
