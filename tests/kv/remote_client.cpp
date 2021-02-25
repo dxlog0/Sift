@@ -17,6 +17,17 @@
 #include "common/common.h"
 
 #include <random>
+//op
+#define ST_OP_PUT 0
+#define ST_OP_GET 1
+
+//LATENCY
+#define MAX_LATENCY 1000 //in us
+#define LATENCY_BUCKETS 1000
+#define LATENCY_PRECISION (MAX_LATENCY / LATENCY_BUCKETS) //latency granularity in us
+
+// DEBUG
+#define ENABLE_ASSERTIONS 0
 
 const int num_keys = KV_SIZE;
 
@@ -24,6 +35,93 @@ int getOp() {
     static thread_local std::default_random_engine generator;
     std::uniform_int_distribution<int> intDistribution(0,99);
     return intDistribution(generator);
+}
+
+/* ---------------------------------------------------------------------------
+----------------------------------- LATENCY -------------------------------
+---------------------------------------------------------------------------*/
+struct latency_counters{
+    uint32_t read_reqs[LATENCY_BUCKETS + 1];
+    uint32_t write_reqs[LATENCY_BUCKETS + 1];
+    int max_read_latency;
+    int max_write_latency;
+    long long total_measurements;
+};
+struct latency_counters latency_count;
+
+//Add latency to histogram (in microseconds)
+static inline void
+bookkeep_latency(int useconds, uint8_t op)
+{
+	uint32_t* latency_array;
+	int* max_latency_ptr;
+	switch (op){
+		case ST_OP_PUT:
+			latency_array = latency_count.write_reqs;
+			max_latency_ptr = &latency_count.max_write_latency;
+			break;
+		case ST_OP_GET:
+			latency_array = latency_count.read_reqs;
+			max_latency_ptr = &latency_count.max_read_latency;
+			break;
+		default: assert(0);
+	}
+	latency_count.total_measurements++;
+	if (useconds > MAX_LATENCY)
+		latency_array[LATENCY_BUCKETS]++;
+	else
+		latency_array[useconds / LATENCY_PRECISION]++;
+
+	if(*max_latency_ptr < useconds)
+		*max_latency_ptr = useconds;
+}
+
+// Necessary bookkeeping to initiate the latency measurement
+static inline void
+start_latency_measurement(struct timespec *start)
+{
+	clock_gettime(CLOCK_MONOTONIC, start);
+}
+
+static inline void
+stop_latency_measurement(uint8_t req_opcode, struct timespec *start)
+{
+	struct timespec end;
+	clock_gettime(CLOCK_MONOTONIC, &end);
+	int useconds = (int) (((end.tv_sec - start->tv_sec) * 1000000) +
+				   ((end.tv_nsec - start->tv_nsec) / 1000));
+	if (ENABLE_ASSERTIONS) assert(useconds >= 0);
+//	printf("Latency of %s %u us\n", code_to_str(req_opcode), useconds);
+	bookkeep_latency(useconds, req_opcode);
+}
+
+//assuming microsecond latency
+void dump_latency_stats(int op_num, int read_ratio)
+{
+    FILE *latency_stats_fd;
+    char filename[128];
+    char* path = "./results/latency";
+
+    sprintf(filename, "%s/%s_latency_op_%d_read_%d.csv", path,
+            "Sift",
+            op_num, read_ratio);
+
+    latency_stats_fd = fopen(filename, "w");
+    fprintf(latency_stats_fd, "#---------------- Read Reqs --------------\n");
+    for(int i = 0; i < LATENCY_BUCKETS; ++i)
+        fprintf(latency_stats_fd, "reads: %d, %d\n",i * LATENCY_PRECISION, latency_count.read_reqs[i]);
+    fprintf(latency_stats_fd, "reads: -1, %d\n", latency_count.read_reqs[LATENCY_BUCKETS]); //print outliers
+    fprintf(latency_stats_fd, "reads-hl: %d\n", latency_count.max_read_latency); //print max read latency
+
+    fprintf(latency_stats_fd, "#---------------- Write Reqs ---------------\n");
+    for(int i = 0; i < LATENCY_BUCKETS; ++i)
+        fprintf(latency_stats_fd, "writes: %d, %d\n",i * LATENCY_PRECISION, latency_count.write_reqs[i]);
+    fprintf(latency_stats_fd, "writes: -1, %d\n", latency_count.write_reqs[LATENCY_BUCKETS]); //print outliers
+    fprintf(latency_stats_fd, "writes-hl: %d\n", latency_count.max_write_latency); //print max write latency
+
+    fclose(latency_stats_fd);
+
+    printf("Latency stats saved at %s\n", filename);
 }
 
 int main(int argc, char **argv) {
@@ -55,14 +153,17 @@ int main(int argc, char **argv) {
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(1,num_keys-1);
- 
+
     LogInfo("Running workload...");
     uint64_t completed_gets = 0;
     uint64_t completed_puts = 0;
-    auto t1 = std::chrono::high_resolution_clock::now();
+    struct timespec start_time;
+
     for (int i = 0; i < num_ops; i++) {
         int op = getOp();
         std::string key("keykeykey" + std::to_string(dist(rng)));
+
+        start_latency_measurement(&start_time);
         if (op < read_prob) {
             client.get(key);
             completed_gets++;
@@ -71,10 +172,11 @@ int main(int argc, char **argv) {
             client.put(key, value);
             completed_puts++;
         }
+        stop_latency_measurement(op < read_prob?1:0, &start_time);
     }
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto timespan = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
-    LogInfo("Result: " << completed_gets << " gets, " << completed_puts << " puts, the timespan is "<<timespan.count()<<" ms");
+
+    LogInfo("Result: " << completed_gets << " gets, " << completed_puts << " puts");
+    dump_latency_stats(num_ops, read_prob);
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     return 0;
