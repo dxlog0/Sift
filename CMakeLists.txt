@@ -76,3 +76,6 @@ target_link_libraries(kv_remote_server key_value)
 
 add_executable(kv_remote_client "tests/kv/remote_client.cpp")
 target_link_libraries(kv_remote_client key_value)
+
+add_executable(kv_remote_server "tests/kv/recovery.cpp" "util/rpc/buffer.cpp" "util/rpc/connection.cpp" "util/rpc/kv_connection.cpp")
+target_link_libraries(kv_remote_server key_value)
