@@ -54,7 +54,6 @@ void countThroughput(){
         completedOps = 0;
         usleep(10000);//usleep 10000us = 10ms 
     }
-    return (void*)0;
 }
 
 const int num_keys = KV_SIZE;
