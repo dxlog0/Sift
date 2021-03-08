@@ -100,7 +100,7 @@ void dump_latency_stats(int op_num, int read_ratio)
 {
     FILE *latency_stats_fd;
     char filename[128];
-    char* path = "./results/latency";
+    const char* path = "./results/latency";
 
     sprintf(filename, "%s/%s_latency_op_%d_read_%d.csv", path,
             "Sift",
