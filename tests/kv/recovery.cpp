@@ -18,6 +18,7 @@
 #include <vector>
 #include <fstream>
 #include <time.h>
+#include <thread>
 
 #include <random>
 //op
@@ -36,7 +37,7 @@
 int completedOps = 0; //count the number of ops that completed in 10ms
 bool allComplete = false;
 
-void *countThroughput(void* arg){
+void countThroughput(){
     std::fstream infile;
     infile.open("./results/revovery.csv");
     completedOps = 0;
@@ -186,6 +187,9 @@ int main(int argc, char **argv) {
     uint64_t completed_puts = 0;
     struct timespec start_time;
 
+
+    std::thread testThroughput(countThroughput, NULL);
+
     for (int i = 0; i < num_ops; i++) {
         int op = getOp();
         std::string key("keykeykey" + std::to_string(dist(rng)));
@@ -194,10 +198,12 @@ int main(int argc, char **argv) {
         if (op < read_prob) {
             client.get(key);
             completed_gets++;
+            completedOps++;
         } else {
             std::string value("this is a test string " + std::to_string(i));
             client.put(key, value);
             completed_puts++;
+            completedOps++;
         }
         stop_latency_measurement(op < read_prob?1:0, &start_time);
     }
