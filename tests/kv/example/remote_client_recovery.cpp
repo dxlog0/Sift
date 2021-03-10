@@ -89,6 +89,7 @@ void * print_stats_thread(void * no_arg)
         printf("PRINT %d time elapsed %.4f ms, NODE Reqs/s: %.2f \n", print_count, seconds*1000, total_throughput);
     }
     p.close();
+    return (void*)0;
 }
 
 void * exec_populate(void * arg)
