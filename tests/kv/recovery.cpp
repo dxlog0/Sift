@@ -38,7 +38,7 @@ bool allComplete = false;
 void* countThroughput(void * no_arg){
     std::fstream infile;
     infile.open("./results/revovery.csv");
-    infile<<"Timespan/ms,completedOps"<<endl;
+    infile<<"Timespan/ms,completedOps"<<std::endl;
     completedOps = 0;
     long times = 0;
     struct timespec start, end;
