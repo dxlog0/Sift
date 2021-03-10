@@ -15,6 +15,8 @@
 #include "include/kv_store/remote_server.h"
 #include "include/client/remote_client.h"
 #include "common/common.h"
+#include <fstream>
+#include <time.h>
 
 #include <random>
 //op
@@ -28,6 +30,31 @@
 
 // DEBUG
 #define ENABLE_ASSERTIONS 0
+
+// 10ms throughput
+int completedOps = 0; //count the number of ops that completed in 10ms
+bool allComplete = false;
+
+void* countThroughput(void * no_arg){
+    std::fstream infile;
+    infile.open("./results/revovery.csv");
+    infile<<"Timespan/ms,completedOps"<<std::endl;
+    completedOps = 0;
+    long times = 0;
+    struct timespec start, end;
+    clock_gettime(CLOCK_REALTIME, &start);
+    while (!allComplete)
+    {
+        usleep(10000);//usleep 10000us = 10ms 
+        clock_gettime(CLOCK_REALTIME, &end);
+        double seconds = (end.tv_sec - start.tv_sec) + (double) (end.tv_nsec - start.tv_nsec) / 1000000001;
+        start = end;
+        infile<<times<<","<<completedOps<<","<<seconds<<std::endl;
+        times++;
+        completedOps = 0;
+    }
+    infile.close();
+}
 
 const int num_keys = KV_SIZE;
 
@@ -159,22 +186,26 @@ int main(int argc, char **argv) {
     uint64_t completed_puts = 0;
     struct timespec start_time;
 
+    pthread_t pthread_throughput;
+    pthread_create(&pthread_throughput, NULL, countThroughput, NULL);
+
     for (int i = 0; i < num_ops; i++) {
         int op = getOp();
         std::string key("keykeykey" + std::to_string(dist(rng)));
-
         start_latency_measurement(&start_time);
         if (op < read_prob) {
             client.get(key);
             completed_gets++;
+            completedOps++;
         } else {
             std::string value("this is a test string " + std::to_string(i));
             client.put(key, value);
             completed_puts++;
+            completedOps++;
         }
         stop_latency_measurement(op < read_prob?1:0, &start_time);
     }
-
+    allComplete = true;
     LogInfo("Result: " << completed_gets << " gets, " << completed_puts << " puts");
     dump_latency_stats(num_ops, read_prob);
     std::this_thread::sleep_for(std::chrono::seconds(1));
